@@ -41,6 +41,32 @@ namespace ProductApi.Controllers
             return products;
         }
 
+        [HttpGet("{id}")]
+        public ActionResult<Product> GetById(Guid id)
+        {
+            conn.Connection.Open();
+            string sql = $"SELECT * FROM products WHERE Id='{id}'";
+
+            MySqlCommand cmd = new MySqlCommand(sql, conn.Connection);
+            MySqlDataReader reader = cmd.ExecuteReader();
+            reader.Read();
+
+
+            var result = new Product
+            {
+                Id = reader.GetGuid(0),
+                Name = reader.GetString(1),
+                Price = reader.GetInt32(2),
+                CreatedTime = reader.GetDateTime(3)
+            };
+
+
+
+            conn.Connection.Close();
+
+            return result;
+        }
+
         [HttpPost]
         public ActionResult<Product> Post(CreateProductDto product)
         {
