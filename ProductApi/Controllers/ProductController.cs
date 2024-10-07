@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MySql.Data.MySqlClient;
 using ProductApi.Models;
+using static ProductApi.Dtos.Dto;
 
 namespace ProductApi.Controllers
 {
@@ -38,6 +39,29 @@ namespace ProductApi.Controllers
             conn.Connection.Close();
 
             return products;
+        }
+
+        [HttpPost]
+        public ActionResult<Product> Post(CreateProductDto product)
+        {
+            var result = new Product
+            {
+                Id = Guid.NewGuid(),
+                Name = product.Name,
+                Price = product.Price,
+                CreatedTime = DateTime.Now
+            };
+
+            string sql = $"INSERT INTO `products`(`Id`, `Name`, `Price`, `CreatedTime`) VALUES ('{result.Id}','{result.Name}', {result.Price}, '{result.CreatedTime.ToString("yyyy-MM-dd hh:mm:ss")}')";
+
+            conn.Connection.Open();
+
+            MySqlCommand cmd = new MySqlCommand(sql, conn.Connection);
+            cmd.ExecuteNonQuery();
+
+            conn.Connection.Close();
+
+            return StatusCode(201, result);
         }
     }
 }
